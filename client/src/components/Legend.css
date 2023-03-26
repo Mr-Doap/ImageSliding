@@ -1,0 +1,17 @@
+.Legend {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: grid;
+    grid-template-columns: 10px auto;
+  }
+  
+  .LegendIcon {
+    margin-top: 6px;
+  }
+  
+  .LegendText {
+    text-align: top;
+    padding-left: 5px;
+  }
+  

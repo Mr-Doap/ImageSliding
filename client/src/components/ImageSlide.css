@@ -1,0 +1,39 @@
+.ImageSlide {
+    display: grid;
+    grid-template-columns: repeat(60, 10px);
+    height: 200px;
+    width: 600px;
+    border: 1px solid black;
+    margin-left: 600px;
+    margin-top: 300px;
+}
+  
+  .Captured {
+    background-color: green;
+    height: 10px;
+    width: 10px;
+  }
+  
+  .RequestedButNotFocused {
+    border: 1px dashed gray;
+    height: 8px;
+    width: 8px;
+  }
+  
+  .FocusedButNotCaptured {
+    background-color: gray;
+    height: 10px;
+    width: 10px;
+  }
+  
+  .Capturing {
+    background-color: blue;
+    height: 10px;
+    width: 10px;
+  }
+  
+  .Default {
+    border: none;
+    height: 10px;
+    width: 10px;
+  }
