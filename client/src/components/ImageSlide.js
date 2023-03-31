@@ -28,53 +28,58 @@ export const ConnectedImageSlide = () => {
       fetchFocused();
     };
   
+    const handleArrowUp = ({x,y}) => {
+      if (x === 1) {
+        return {x,y};
+      }
+      const newRegion = {x: x-1, y};
+      axios.post(`${BASE_URL}/move`, newRegion);
+      return newRegion;
+    };
+
+    const handleArrowDown = ({x,y}) => {
+      if (x === ROWS) {
+        return {x,y};
+      }
+      const newRegion = {x: x+1, y};
+      axios.post(`${BASE_URL}/move`, newRegion);
+      return newRegion;
+    };
+
+    const handleArrowLeft = ({x,y}) => {
+      if (y === 1) {
+        return {x,y};
+      }
+      const newRegion = {x, y: y-1};
+      axios.post(`${BASE_URL}/move`, newRegion);
+      return newRegion;
+    }
+
+    const handleArrowRight = ({x,y}) => {
+      if (y === COLS) {
+        return {x,y};
+      }
+      const newRegion = {x, y: y+1};
+      axios.post(`${BASE_URL}/move`, newRegion);
+      return newRegion;
+    };
+
     const handleKeyDown = (event) => {
+      if (event.code !== 'ArrowUp' && event.code !== 'ArrowDown' && event.code !== 'ArrowLeft' && event.code !== 'ArrowRight') {
+        return;
+      }
+      event.preventDefault();
       if (event.code === 'ArrowUp') {
-        event.preventDefault();
-        setCapturing(({x,y}) => {
-          if (x === 1) {
-            return {x,y};
-          }
-          const newRegion = {x: x-1, y};
-          axios.post(`${BASE_URL}/move`, newRegion);
-          return newRegion;
-        });
+        setCapturing(handleArrowUp);
       }
       else if (event.code === 'ArrowDown') {
-        event.preventDefault();
-        setCapturing(({x,y}) => {
-          if (x === ROWS) {
-            return {x,y};
-          }
-          const newRegion = {x: x+1, y};
-          axios.post(`${BASE_URL}/move`, newRegion);
-          return newRegion;
-        });
+        setCapturing(handleArrowDown);
       }
       else if (event.code === 'ArrowLeft') {
-        event.preventDefault();
-        setCapturing(({x,y}) => {
-          if (y === 1) {
-            return {x,y};
-          }
-          const newRegion = {x, y: y-1};
-          axios.post(`${BASE_URL}/move`, newRegion);
-          return newRegion;
-        });
+        setCapturing(handleArrowLeft);
       }
       else if (event.code === 'ArrowRight') {
-        event.preventDefault();
-        setCapturing(({x,y}) => {
-          if (y === COLS) {
-            return {x,y};
-          }
-          const newRegion = {x, y: y+1};
-          axios.post(`${BASE_URL}/move`, newRegion);
-          return newRegion;
-        });
-      }
-      else{
-        return;
+        setCapturing(handleArrowRight);
       }
     };
   
@@ -98,6 +103,7 @@ export const ConnectedImageSlide = () => {
       }
     }, [capturing, setCapturing, captured]);
   
+    // Short polling used to simulate real time updates in the UI.
     useEffect(() => {
       const intervalId = setInterval(fetchAllData, DATA_POLL_INTERVAL_MS);
       return () => clearInterval(intervalId);

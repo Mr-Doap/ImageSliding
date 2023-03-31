@@ -11,7 +11,9 @@ const postRegion = (region) => {
     if (IsRegionPresentInArray(captured, region)) {
         return "Ok";
     }
-    requested.push(region);
+    if (!IsRegionPresentInArray(requested, region)) {
+        requested.push(region);
+    }
     if(!currentOperation) {
         currentOperation = {region, status: 'PENDING_FOCUS'};
         runCurrentOperation();
