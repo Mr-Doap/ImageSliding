@@ -1,5 +1,5 @@
 const express = require('express')
-const { captured, focusedButNotCaptured, requestedButNotFocused, postRegion } = require('../models/region.models')
+const { captured, focused, requested, postRegion } = require('../models/region.models')
 const router = express.Router()
 
 router.get('/captured', (req, res) => {
@@ -7,12 +7,11 @@ router.get('/captured', (req, res) => {
 });
 
 router.get('/request', (req, res) => {
-    if (req.query.focus) {
-        res.json(focusedButNotCaptured);
-    }
-    else{
-        res.json(requestedButNotFocused);
-    }
+    res.json(requested);
+});
+
+router.get('/focused', (req, res) => {
+    res.json(focused);
 });
 
 router.post('/move', (req, res) => {

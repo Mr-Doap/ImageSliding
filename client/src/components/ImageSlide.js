@@ -7,25 +7,25 @@ import { BASE_URL, DATA_POLL_INTERVAL_MS, ROWS, COLS} from '../consts';
 export const ConnectedImageSlide = () => {
     const [captured, setCaptured] = useState(null);
     const [capturing, setCapturing] = useState(null);
-    const [focusedButNotCaptured, setFocusedButNotCaptured] = useState(null);
-    const [requestedButNotFocused, setRequestedButNotFocused] = useState(null);
+    const [focused, setFocused] = useState(null);
+    const [requested, setRequested] = useState(null);
   
     const fetchCaptured = () => {
       axios.get(`${BASE_URL}/captured`).then(res => setCaptured(res.data));
     };
   
-    const fetchRequestedButNotFocused = () => {
-      axios.get(`${BASE_URL}/request`).then(res => setRequestedButNotFocused(res?.data ?? []));
+    const fetchRequested = () => {
+      axios.get(`${BASE_URL}/request`).then(res => setRequested(res?.data ?? []));
     };
   
-    const fetchFocusedButNotcaptured = () => {
-      axios.get(`${BASE_URL}/request?focus=true`).then(res => setFocusedButNotCaptured(res?.data ?? []));
+    const fetchFocused = () => {
+      axios.get(`${BASE_URL}/focused`).then(res => setFocused(res?.data ?? []));
     };
   
     const fetchAllData = () => {
       fetchCaptured();
-      fetchRequestedButNotFocused();
-      fetchFocusedButNotcaptured();
+      fetchRequested();
+      fetchFocused();
     };
   
     const handleKeyDown = (event) => {
@@ -103,13 +103,13 @@ export const ConnectedImageSlide = () => {
       return () => clearInterval(intervalId);
     }, []);
   
-    return (<ImageSlide capturedRegions={captured} capturingRegion={capturing} requestedButNotFocusedRegions={requestedButNotFocused} focusedButNotCapturedRegions={focusedButNotCaptured} />);
+    return (<ImageSlide capturedRegions={captured} capturingRegion={capturing} requestedRegions={requested} focusedRegions={focused} />);
   };
   
   const ImageSlide = (props) => {
-    const {capturedRegions, capturingRegion, requestedButNotFocusedRegions, focusedButNotCapturedRegions} = props;
+    const {capturedRegions, capturingRegion, requestedRegions, focusedRegions} = props;
   
-    if (!(capturedRegions && capturingRegion && requestedButNotFocusedRegions && focusedButNotCapturedRegions)) {
+    if (!(capturedRegions && capturingRegion && requestedRegions && focusedRegions)) {
       return null;
     }
   
@@ -117,14 +117,11 @@ export const ConnectedImageSlide = () => {
       if (IsRegionPresentInArray(capturedRegions, region)) {
         return 'Captured';
       }
-      else if (capturingRegion?.x === region.x && capturingRegion?.y === region.y) {
-        return 'Capturing';
+      else if (IsRegionPresentInArray(focusedRegions, region)) {
+        return 'Focused';
       }
-      else if (IsRegionPresentInArray(focusedButNotCapturedRegions, region)) {
-        return 'FocusedButNotCaptured';
-      }
-      else if (IsRegionPresentInArray(requestedButNotFocusedRegions, region)) {
-        return 'RequestedButNotFocused';
+      else if (IsRegionPresentInArray(requestedRegions, region)) {
+        return 'Requested';
       }
       else {
         return 'Default';
@@ -135,7 +132,12 @@ export const ConnectedImageSlide = () => {
   
     for(var x=1;x<=ROWS;x++) {
       for(var y=1;y<=COLS; y++) {
-        classNames.push(getClassName({x,y}));
+        var className = '';
+        if (capturingRegion?.x === x && capturingRegion?.y === y) {
+          className = 'Active ';
+        }
+        className += getClassName({x,y});
+        classNames.push(className);
       }
     }
   

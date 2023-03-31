@@ -10,17 +10,17 @@ export const Legend = () => {
         </div>
         <div className='LegendText'>Captured</div>
         <div className='LegendIcon'>
-          <div className='Capturing'></div>
+          <div className='Active'></div>
         </div>
-        <div className='LegendText'>Capturing</div>
+        <div className='LegendText'>Active</div>
         <div className='LegendIcon'>
-          <div className='FocusedButNotCaptured'></div>
+          <div className='Focused'></div>
         </div>
-        <div className='LegendText'>Focused but not Captured</div>
+        <div className='LegendText'>Focused</div>
         <div className='LegendIcon'>
-          <div className='RequestedButNotFocused'></div>
+          <div className='Requested'></div>
         </div>
-        <div className='LegendText'>Requested but not Focused</div>
+        <div className='LegendText'>Requested</div>
       </div>
     );
   };

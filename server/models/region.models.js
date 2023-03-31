@@ -2,8 +2,8 @@ const {focus, capture} = require('../helpers/imageOperations');
 const { IsRegionPresentInArray } = require('../helpers/utils');
 
 let captured = [];
-let focusedButNotCaptured = [];
-let requestedButNotFocused = [];
+let focused = [];
+let requested = [];
 let pendingMoves = [];
 let currentOperation = null;
 
@@ -11,14 +11,13 @@ const postRegion = (region) => {
     if (IsRegionPresentInArray(captured, region)) {
         return "Ok";
     }
+    requested.push(region);
     if(!currentOperation) {
         currentOperation = {region, status: 'PENDING_FOCUS'};
         runCurrentOperation();
     }
-    else {
-        if (!IsRegionPresentInArray(pendingMoves, region)) {
-            pendingMoves.push(region);
-        }
+    else if(!IsRegionPresentInArray(pendingMoves, region)) {
+        pendingMoves = [region];
     }
     return "Ok";
 };
@@ -40,9 +39,7 @@ const runCurrentOperation = async () => {
 
 const updateHistory = () => {
     if (currentOperation.status === 'PENDING_CAPTURE') {
-        if (pendingMoves.length > 0) {
-            focusedButNotCaptured.push(currentOperation.region);
-        }
+        focused.push(currentOperation.region);
     }
     else {
         captured.push(currentOperation.region);
@@ -52,8 +49,6 @@ const updateHistory = () => {
 const updateCurrentOperation = () => {
     if (pendingMoves.length > 0) {
         currentOperation = {region: pendingMoves.pop(), status: 'PENDING_FOCUS'};
-        requestedButNotFocused.push(...pendingMoves);
-        pendingMoves = [];
     }
     else if (currentOperation.status === 'CAPTURED') {
         currentOperation = null;
@@ -62,7 +57,7 @@ const updateCurrentOperation = () => {
 
 module.exports = {
     captured,
-    focusedButNotCaptured,
-    requestedButNotFocused,
+    focused,
+    requested,
     postRegion
 };
