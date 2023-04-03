@@ -14,6 +14,10 @@ export const Legend = () => {
         </div>
         <div className='LegendText'>Active</div>
         <div className='LegendIcon'>
+          <div className='Focusing'></div>
+        </div>
+        <div className='LegendText'>Focusing</div>
+        <div className='LegendIcon'>
           <div className='Focused'></div>
         </div>
         <div className='LegendText'>Focused</div>

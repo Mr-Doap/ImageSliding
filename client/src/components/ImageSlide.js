@@ -2,13 +2,14 @@ import './ImageSlide.css';
 import React, {useState, useEffect} from 'react';
 import { IsRegionPresentInArray } from '../utils';
 import axios from 'axios';
-import { BASE_URL, DATA_POLL_INTERVAL_MS, ROWS, COLS} from '../consts';
+import { BASE_URL, DATA_POLL_INTERVAL_MS, ROWS, COLS, DEFAULT_ACTIVE_REGION} from '../consts';
 
 export const ConnectedImageSlide = () => {
     const [captured, setCaptured] = useState(null);
-    const [capturing, setCapturing] = useState(null);
+    const [active, setActive] = useState(null);
     const [focused, setFocused] = useState(null);
     const [requested, setRequested] = useState(null);
+    const [focusing, setFocusing] = useState(null);
   
     const fetchCaptured = () => {
       axios.get(`${BASE_URL}/captured`).then(res => setCaptured(res.data));
@@ -21,11 +22,16 @@ export const ConnectedImageSlide = () => {
     const fetchFocused = () => {
       axios.get(`${BASE_URL}/focused`).then(res => setFocused(res?.data ?? []));
     };
+
+    const fetchFocusing = () => {
+      axios.get(`${BASE_URL}/focusing`).then(res => setFocusing(res?.data));
+    };
   
     const fetchAllData = () => {
       fetchCaptured();
       fetchRequested();
       fetchFocused();
+      fetchFocusing();
     };
   
     const handleArrowUp = ({x,y}) => {
@@ -53,7 +59,7 @@ export const ConnectedImageSlide = () => {
       const newRegion = {x, y: y-1};
       axios.post(`${BASE_URL}/move`, newRegion);
       return newRegion;
-    }
+    };
 
     const handleArrowRight = ({x,y}) => {
       if (y === COLS) {
@@ -70,21 +76,22 @@ export const ConnectedImageSlide = () => {
       }
       event.preventDefault();
       if (event.code === 'ArrowUp') {
-        setCapturing(handleArrowUp);
+        setActive(handleArrowUp);
       }
       else if (event.code === 'ArrowDown') {
-        setCapturing(handleArrowDown);
+        setActive(handleArrowDown);
       }
       else if (event.code === 'ArrowLeft') {
-        setCapturing(handleArrowLeft);
+        setActive(handleArrowLeft);
       }
       else if (event.code === 'ArrowRight') {
-        setCapturing(handleArrowRight);
+        setActive(handleArrowRight);
       }
     };
   
     useEffect(() => {
       window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
   
     useEffect(() => {
@@ -92,16 +99,28 @@ export const ConnectedImageSlide = () => {
     }, []);
   
     useEffect(() => {
-      if (!capturing && captured) {
-        if(captured.length > 0) {
-          setCapturing(captured[captured.length - 1]);
+      const getPreviousActiveRegion = () => {
+        if (focusing) {
+          return focusing;
+        }
+        else if (captured && captured.length > 0) {
+          return captured[captured.length - 1];
+        }
+  
+        return null;
+      };
+
+      if (!active) {
+        const region = getPreviousActiveRegion();
+        if (region) {
+          setActive(region);
         }
         else {
-          setCapturing({x: ROWS/2, y: COLS/2});
-          axios.post(`${BASE_URL}/move`, {x: ROWS/2, y: COLS/2});
+          setActive(DEFAULT_ACTIVE_REGION);
+          axios.post(`${BASE_URL}/move`, DEFAULT_ACTIVE_REGION);
         }
       }
-    }, [capturing, setCapturing, captured]);
+    }, [active, setActive, captured, focusing]);
   
     // Short polling used to simulate real time updates in the UI.
     useEffect(() => {
@@ -109,13 +128,13 @@ export const ConnectedImageSlide = () => {
       return () => clearInterval(intervalId);
     }, []);
   
-    return (<ImageSlide capturedRegions={captured} capturingRegion={capturing} requestedRegions={requested} focusedRegions={focused} />);
+    return (<ImageSlide capturedRegions={captured} activeRegion={active} requestedRegions={requested} focusedRegions={focused} focusingRegion={focusing} />);
   };
   
   const ImageSlide = (props) => {
-    const {capturedRegions, capturingRegion, requestedRegions, focusedRegions} = props;
+    const {capturedRegions, activeRegion, requestedRegions, focusedRegions, focusingRegion} = props;
   
-    if (!(capturedRegions && capturingRegion && requestedRegions && focusedRegions)) {
+    if (!(capturedRegions && activeRegion && requestedRegions && focusedRegions)) {
       return null;
     }
   
@@ -125,6 +144,9 @@ export const ConnectedImageSlide = () => {
       }
       else if (IsRegionPresentInArray(focusedRegions, region)) {
         return 'Focused';
+      }
+      else if (focusingRegion?.x === region?.x && focusingRegion?.y === region?.y) {
+        return 'Focusing';
       }
       else if (IsRegionPresentInArray(requestedRegions, region)) {
         return 'Requested';
@@ -139,7 +161,7 @@ export const ConnectedImageSlide = () => {
     for(var x=1;x<=ROWS;x++) {
       for(var y=1;y<=COLS; y++) {
         var className = '';
-        if (capturingRegion?.x === x && capturingRegion?.y === y) {
+        if (activeRegion?.x === x && activeRegion?.y === y) {
           className = 'Active ';
         }
         className += getClassName({x,y});

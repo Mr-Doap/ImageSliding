@@ -1,5 +1,5 @@
 const express = require('express')
-const { captured, focused, requested, postRegion } = require('../models/region.models')
+const { captured, focused, requested, postRegion, getFocusing } = require('../models/region.models')
 const router = express.Router()
 
 router.get('/captured', (req, res) => {
@@ -12,6 +12,10 @@ router.get('/request', (req, res) => {
 
 router.get('/focused', (req, res) => {
     res.json(focused);
+});
+
+router.get('/focusing', (req, res) => {
+    res.json(getFocusing());
 });
 
 router.post('/move', (req, res) => {
