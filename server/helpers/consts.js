@@ -4,6 +4,11 @@ const OPERATION_STATUS = {
     CAPTURED: 'CAPTURED'
 };
 
+const FOCUS_SLEEP_MS = 3000;
+const CAPTURE_SLEEP_MS = 2000;
+
 module.exports = {
-    OPERATION_STATUS
+    OPERATION_STATUS,
+    FOCUS_SLEEP_MS,
+    CAPTURE_SLEEP_MS
 };

@@ -7,7 +7,10 @@ let focused = [];
 let requested = [];
 let pendingMoves = [];
 let currentOperation = null;
-
+/**
+ * 
+ * @returns region that is being focused as part of the current operation, otherwise returns null.
+ */
 const getFocusing = () => {
     if (isFocusing()) {
         return currentOperation.region;
@@ -19,6 +22,12 @@ const isFocusing = () => {
     return currentOperation && currentOperation.status === OPERATION_STATUS.PENDING_FOCUS;
 };
 
+/**
+ * Asynchrnous function that returns immediately after it takes the input. Returns 'Ok' response after noting down the region, does not wait for the focus and capture blocking operations to complete.
+ * 
+ * @param region Region to refocus on that is execute both the focus and capture operations upon. 
+ * @returns 'Ok'
+ */
 const postRegion = (region) => {
     if (IsRegionPresentInArray(captured, region)) {
         return "Ok";
